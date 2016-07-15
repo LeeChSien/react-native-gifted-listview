@@ -281,6 +281,8 @@ var GiftedListView = React.createClass({
   _handleScroll(event) {
     if (!this.props.autoLoad) { return; }
 
+    if (this.state.paginationStatus == 'fetching' || this.state.paginationStatus == 'allLoaded') { return; }
+    
     let n_event = event.nativeEvent;
     if ((n_event.layoutMeasurement.height + n_event.contentOffset.y + 10) >
          n_event.contentSize.height) {
