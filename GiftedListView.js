@@ -49,6 +49,7 @@ var GiftedListView = React.createClass({
       sectionHeaderView: null,
       scrollEnabled: true,
       withSections: false,
+      autoLoad: false,
       onFetch(page, callback, options) { callback([]); },
 
       paginationFetchingView: null,
@@ -77,6 +78,7 @@ var GiftedListView = React.createClass({
     sectionHeaderView: React.PropTypes.func,
     scrollEnabled: React.PropTypes.bool,
     withSections: React.PropTypes.bool,
+    autoLoad: React.PropTypes.bool,
     onFetch: React.PropTypes.func,
 
     paginationFetchingView: React.PropTypes.func,
@@ -112,11 +114,7 @@ var GiftedListView = React.createClass({
     }
 
     return (
-      <View style={[this.defaultStyles.paginationView, this.props.customStyles.paginationView]}>
-        <Text style={[this.defaultStyles.actionsLabel, this.props.customStyles.actionsLabel]}>
-          ~
-        </Text>
-      </View>
+      <View></View>
     );
   },
   paginationWaitingView(paginateCallback) {
@@ -252,7 +250,7 @@ var GiftedListView = React.createClass({
     if(this.props.distinctRows){
       mergedRows = this.props.distinctRows(mergedRows);
     }
-    
+
     this._updateRows(mergedRows, options);
   },
 
@@ -278,6 +276,17 @@ var GiftedListView = React.createClass({
         paginationStatus: (options.allLoaded === true ? 'allLoaded' : 'waiting'),
       });
     }
+  },
+
+  _handleScroll(event) {
+    if (!this.props.autoLoad) { return; }
+
+    let n_event = event.nativeEvent;
+    if ((n_event.layoutMeasurement.height + n_event.contentOffset.y + 10) >
+         n_event.contentSize.height) {
+       console.log('trigger');
+       this._onPaginate();
+     }
   },
 
   _renderPaginationView() {
@@ -315,6 +324,7 @@ var GiftedListView = React.createClass({
     return (
       <ListView
         ref="listview"
+        onScroll={this._handleScroll}
         dataSource={this.state.dataSource}
         renderRow={this.props.rowView}
         renderSectionHeader={this.props.sectionHeaderView}
